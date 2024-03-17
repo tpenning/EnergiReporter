@@ -9,7 +9,7 @@ st.markdown("# Single Data Measurement")
 st.sidebar.header("Single Measurement")
 st.write("""
     This page visualizes the energy data from a single measurement. 
-    Upload your csv file with columns TIME and ENERGY to generate the plots.
+    Upload your csv file with columns TIME and ENERGY to generate the charts.
     """)
 
 

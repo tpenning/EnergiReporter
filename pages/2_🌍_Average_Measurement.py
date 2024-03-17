@@ -9,7 +9,7 @@ st.markdown("# Average Data Measurement")
 st.sidebar.header("Average Measurement")
 st.write("""
     This page visualizes the energy data average over multiple measurements. 
-    Upload your csv files with columns TIME and ENERGY to generate the plots.
+    Upload your csv files with columns TIME and ENERGY to generate the charts.
     """)
 
 
@@ -83,6 +83,6 @@ if uploaded_files:
     all_data = pd.concat(dfs, axis=1, keys=[f"ENERGY{i}" for i in range(1, len(dfs) + 1)])
     mean_data = all_data.mean(axis=1)
 
-    # Generate the mean chart tabs and the errorband charts
+    # Generate the mean chart tabs and the errorband charts tabs
     generate_mean_charts(mean_data)
     generate_errorband_charts(mean_data, all_data)
