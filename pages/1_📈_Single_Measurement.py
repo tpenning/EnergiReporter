@@ -9,7 +9,7 @@ st.markdown("# Single Data Measurement")
 st.sidebar.header("Single Measurement")
 st.write("""
     This page visualizes the energy data from a single measurement. 
-    Upload your data file to generate the plots.
+    Upload your csv file with columns TIME and ENERGY to generate the plots.
     """)
 
 # File uploader
@@ -24,7 +24,7 @@ if uploaded_file is not None:
     energy_time_data = df.rename(columns={"TIME": "Time (s)", "ENERGY": "Energy (J)"})
     st.line_chart(energy_time_data, x="Time (s)", y="Energy (J)")
 
-    tab_line, tab_area, tab_bar = st.tabs(["📈 Chart", "A Chart", "B Chart"])
+    tab_line, tab_area, tab_bar = st.tabs(["📈 Chart", "Area Chart", "Bar Chart"])
 
     tab_line.subheader("A tab with a line chart")
     tab_line.line_chart(energy_time_data, x="Time (s)", y="Energy (J)")
