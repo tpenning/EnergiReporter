@@ -12,29 +12,28 @@ st.write("""
     Upload your csv files with columns TIME and ENERGY to generate the plots.
     """)
 
-# Upload multiple files
-uploaded_files = st.file_uploader("Upload CSV files", type=["csv"], accept_multiple_files=True)
 
-
-def generate_mean_plots(mean_data_df):
+# Generate the mean chart tabs
+def generate_mean_charts(mean_df):
     # Restore the TIME from index
-    mean_data_tdf = mean_data_df.reset_index()\
+    mean_tdf = mean_df.reset_index()\
         .rename(columns={"TIME": "Time (s)", 0: "Energy (J)"})
 
     # Create a tab element with the different chart variations
     tab_line, tab_area, tab_bar = st.tabs(["Line Chart", "Area Chart", "Bar Chart"])
 
     tab_line.subheader("Data mean line chart")
-    tab_line.line_chart(mean_data_tdf, x="Time (s)", y="Energy (J)")
+    tab_line.line_chart(mean_tdf, x="Time (s)", y="Energy (J)")
 
     tab_area.subheader("Data mean area chart")
-    tab_area.area_chart(mean_data_tdf, x="Time (s)", y="Energy (J)")
+    tab_area.area_chart(mean_tdf, x="Time (s)", y="Energy (J)")
 
     tab_bar.subheader("Data mean bar chart")
-    tab_bar.bar_chart(mean_data_tdf, x="Time (s)", y="Energy (J)")
+    tab_bar.bar_chart(mean_tdf, x="Time (s)", y="Energy (J)")
 
 
-def generate_errorband_plots(mean_data_df, all_data_df):
+# Generate the errorband charts
+def generate_errorband_charts(mean_data_df, all_data_df):
     # Calculate the std and conf data across the DataFrames
     std_data = all_data_df.std(axis=1)
     conf_data = std_data * 2
@@ -63,6 +62,9 @@ def generate_errorband_plots(mean_data_df, all_data_df):
                           use_container_width=True)
 
 
+# Upload multiple files
+uploaded_files = st.file_uploader("Upload CSV files", type=["csv"], accept_multiple_files=True)
+
 # Process the uploaded files
 if uploaded_files:
     # Initialize a list to store the DataFrames
@@ -81,6 +83,6 @@ if uploaded_files:
     all_data = pd.concat(dfs, axis=1, keys=[f"ENERGY{i}" for i in range(1, len(dfs) + 1)])
     mean_data = all_data.mean(axis=1)
 
-    # Create the general mean plot tabs and the errorband charts
-    generate_mean_plots(mean_data)
-    generate_errorband_plots(mean_data, all_data)
+    # Generate the mean chart tabs and the errorband charts
+    generate_mean_charts(mean_data)
+    generate_errorband_charts(mean_data, all_data)
