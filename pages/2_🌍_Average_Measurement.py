@@ -15,21 +15,16 @@ st.write("""
 
 # Generate the mean chart tabs
 def generate_mean_charts(mean_df):
-    # Restore the TIME from index
-    mean_tdf = mean_df.reset_index()\
-        .rename(columns={"TIME": "Time (s)", 0: "Energy (J)"})
+    # Restore the TIME from index and rename it
+    mean_tdf = mean_df.reset_index().rename(columns={"TIME": "Time (s)", 0: "Energy (J)"})
 
     # Create a tab element with the different chart variations
+    st.subheader("Energy data averages over time:")
     tab_line, tab_area, tab_bar = st.tabs(["Line Chart", "Area Chart", "Bar Chart"])
 
-    tab_line.subheader("Data mean line chart")
-    tab_line.line_chart(mean_tdf, x="Time (s)", y="Energy (J)")
-
-    tab_area.subheader("Data mean area chart")
-    tab_area.area_chart(mean_tdf, x="Time (s)", y="Energy (J)")
-
-    tab_bar.subheader("Data mean bar chart")
-    tab_bar.bar_chart(mean_tdf, x="Time (s)", y="Energy (J)")
+    tab_line.line_chart(mean_tdf, x="Time (s)", y="Energy (J)", use_container_width=True)
+    tab_area.area_chart(mean_tdf, x="Time (s)", y="Energy (J)", use_container_width=True)
+    tab_bar.bar_chart(mean_tdf, x="Time (s)", y="Energy (J)", use_container_width=True)
 
 
 # Generate the errorband charts

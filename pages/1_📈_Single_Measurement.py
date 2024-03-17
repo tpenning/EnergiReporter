@@ -15,21 +15,16 @@ st.write("""
 
 # Generate the chart tabs
 def generate_et_charts(tdf):
-    # Rename the columns and add a subheader
+    # Rename the columns
     energy_time_df = tdf.rename(columns={"TIME": "Time (s)", "ENERGY": "Energy (J)"})
-    st.subheader("Energy data over time:")
 
     # Create a tab element with the different chart variations
+    st.subheader("Energy data over time:")
     tab_line, tab_area, tab_bar = st.tabs(["📈 Chart", "Area Chart", "Bar Chart"])
 
-    tab_line.subheader("A tab with a line chart")
-    tab_line.line_chart(energy_time_df, x="Time (s)", y="Energy (J)")
-
-    tab_area.subheader("A tab with an area chart")
-    tab_area.area_chart(energy_time_df, x="Time (s)", y="Energy (J)")
-
-    tab_bar.subheader("A tab with a bar chart")
-    tab_bar.bar_chart(energy_time_df, x="Time (s)", y="Energy (J)")
+    tab_line.line_chart(energy_time_df, x="Time (s)", y="Energy (J)", use_container_width=True)
+    tab_area.area_chart(energy_time_df, x="Time (s)", y="Energy (J)", use_container_width=True)
+    tab_bar.bar_chart(energy_time_df, x="Time (s)", y="Energy (J)", use_container_width=True)
 
 
 # File uploader
