@@ -57,27 +57,50 @@ def generate_errorband_charts(mean_data_df, all_data_df):
                           use_container_width=True)
 
 
+def generate_power_boxplot_charts(power_data, run_names):
+    # Concatenate the DataFrames along the power lists
+    pdf = pd.concat(power_data, axis=1, keys=run_names)
+    pdf.reset_index(drop=True, inplace=True)
+
+    # Melt the dataframe to long format
+    melted_pdf = pdf.melt(var_name="Run", value_name="Power (W)")
+
+    # Create the boxplot chart
+    st.subheader("Power intervals boxplots:")
+    chart = alt.Chart(melted_pdf).mark_boxplot().interactive().encode(x="Run:O", y="Power (W):Q")
+    st.altair_chart(chart, theme="streamlit", use_container_width=True)
+
+
 # Upload multiple files
 uploaded_files = st.file_uploader("Upload CSV files", type=["csv"], accept_multiple_files=True)
 
 # Process the uploaded files
 if uploaded_files:
-    # Initialize a list to store the DataFrames
-    dfs = []
+    # Initialize the lists to store the DataFrames
+    names = []
+    pdfs = []
+    edfs = []
 
     # Iterate over the uploaded files
     for uploaded_file in uploaded_files:
-        # Read the CSV file
+        # Read the CSV file and store the name
         df = pd.read_csv(uploaded_file)
+        names.append(uploaded_file.name[:-4])
+
+        # Add the power DataFrames to a list
+        pdfs.append(
+            pd.DataFrame(data={"POWER": [df.values[i][1] / (df.values[i + 1][0] - df.values[i][0])
+                                         for i in range(len(df.values) - 1)]})["POWER"])
 
         # Index by TIME and add the ENERGY column to the list
-        df.set_index("TIME", inplace=True)
-        dfs.append(df["ENERGY"])
+        edf = df.set_index("TIME", inplace=True)
+        edfs.append(df["ENERGY"])
 
     # Concatenate the DataFrames along the ENERGY columns and calculate the mean data across the DataFrames
-    all_data = pd.concat(dfs, axis=1, keys=[f"ENERGY{i}" for i in range(1, len(dfs) + 1)])
+    all_data = pd.concat(edfs, axis=1, keys=[f"ENERGY{i}" for i in range(1, len(edfs) + 1)])
     mean_data = all_data.mean(axis=1)
 
     # Generate the mean chart tabs and the errorband charts tabs
     generate_mean_charts(mean_data)
     generate_errorband_charts(mean_data, all_data)
+    generate_power_boxplot_charts(pdfs, names)

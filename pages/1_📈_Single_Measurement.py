@@ -30,13 +30,11 @@ def generate_et_charts(tdf):
 
 def generate_power_boxplot_chart(tdf):
     # Calculate the power values at all time intervals
-    power_values = []
-    for i in range(len(df.values) - 1):
-        power_values.append(df.values[i][1] / (df.values[i+1][0] - df.values[i][0]))
-    pdf = pd.DataFrame(data={"Power (W)": power_values})
+    pdf = pd.DataFrame(data={"Power (W)": [tdf.values[i][1] / (tdf.values[i + 1][0] - tdf.values[i][0])
+                                           for i in range(len(df.values) - 1)]})
 
     # Create the boxplot chart
-    st.subheader("Energy data over time:")
+    st.subheader("Power intervals boxplot:")
     chart = alt.Chart(pdf).mark_boxplot(extent="min-max").encode(y="Power (W)").interactive()
     st.altair_chart(chart, theme="streamlit", use_container_width=True)
 
