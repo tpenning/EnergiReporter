@@ -19,7 +19,7 @@ def generate_compare_charts(compare_df):
 
     # Create a tab element with the different chart variations
     st.subheader("Energy data over time comparison:")
-    tab_line, tab_area, tab_bar = st.tabs(["Line Chart", "Area Chart", "Bar Chart"])
+    tab_line, tab_area = st.tabs(["Line Chart", "Area Chart"])
 
     tab_line.line_chart(compare_tdf, x="Time (s)", use_container_width=True)
     tab_area.area_chart(compare_tdf, x="Time (s)", use_container_width=True)

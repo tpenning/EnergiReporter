@@ -19,7 +19,7 @@ def generate_compare_mean_charts(means_df):
 
     # Create a tab element with the different chart variations
     st.subheader("Data means chart:")
-    tab_line, tab_area, tab_bar = st.tabs(["Line Chart", "Area Chart", "Bar Chart"])
+    tab_line, tab_area = st.tabs(["Line Chart", "Area Chart"])
 
     tab_line.line_chart(means_tdf, x="Time (s)", use_container_width=True)
     tab_area.area_chart(means_tdf, x="Time (s)", use_container_width=True)
