@@ -19,17 +19,15 @@ TIME = "Time (s)"
 POWER = "Power (W)"
 
 
-def show_mean_charts(means_df):
+def show_mean_charts(singles, means_df):
     # Retrieve the time column from the index
     means_tdf = means_df.reset_index()
 
     # Melt the dataframe to have a column for the power value and another for the power number
     melted_means_tdf = means_tdf.melt(id_vars=[TIME], var_name="Set", value_name=POWER)
 
-    st.write(means_df)
-
     # Create a tab element with the different chart variations
-    st.subheader("Data means chart:")
+    st.subheader(f"Power consumption {'' if singles[0] and singles[1]  else 'averages '}over time:")
     tab_line, tab_area = st.tabs(["Line Chart", "Area Chart"])
 
     # Assign the tabs altair charts (using with notation) to label the axis and indicate set colors
@@ -70,7 +68,7 @@ def main():
         means_df = pd.concat([mean_df[POWER] for mean_df in mean_dfs], axis=1, keys=["Set #1", "Set #2"])
 
         # Show the data analysis charts (single indicated changes handled internally to easily keep the charts order)
-        show_mean_charts(means_df)
+        show_mean_charts(singles, means_df)
 
 
 # Run the main script

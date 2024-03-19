@@ -24,7 +24,7 @@ def show_mean_charts(single, mean_df, total_energy):
     mean_tdf = mean_df.reset_index()
 
     # Show the header of this chart and information
-    st.subheader(f"Power consumption {'average ' if single else ''}over time:")
+    st.subheader(f"Power consumption {'' if single else 'average '}over time:")
 
     # Show the (average) total energy used and average power consumption
     st.info(f"{'Total' if single else 'Average total'} energy usage: {total_energy}J")
