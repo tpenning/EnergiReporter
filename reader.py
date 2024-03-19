@@ -26,7 +26,7 @@ def read_uploaded_files(uploaded_files):
 
     # Concatenate the DataFrames along the POWER columns and calculate the mean data across the DataFrames
     power_df = pd.concat(pdfs, axis=1, keys=names)
-    mean_df = power_df.mean(axis=1).to_frame().reset_index().rename(columns={0: "Power (W)"})
+    mean_df = power_df.mean(axis=1).to_frame().rename(columns={0: "Power (W)"})
 
     # Average the total energy over all files
     total_energy = round(total_energy / len(uploaded_files), 2)
