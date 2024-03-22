@@ -1,6 +1,8 @@
 import altair as alt
 import pandas as pd
 import streamlit as st
+from streamlit_modal import Modal
+from Helpteksten import *
 
 from reader import read_uploaded_files
 
@@ -37,6 +39,16 @@ def show_mean_charts(single, mean_df, total_energy):
     tab_area.area_chart(mean_tdf, x=TIME, y=POWER, use_container_width=True)
     tab_bar.bar_chart(mean_tdf, x=TIME, y=POWER, use_container_width=True)
 
+    # Create help modal
+    mean_chart_modal = Modal("Inserting files", key="mean_chart_modal")
+    open_modal = st.button("Help", key="mean_chart_modal")
+
+    # Open modal if clicked
+    if open_modal:
+        with mean_chart_modal.container():
+            st.markdown(helptekst_mean_chart_modal)
+
+    st.markdown("---")
 
 def show_errorband_charts(single, mean_df, power_df):
     # Only show these if not just a single file
@@ -71,6 +83,16 @@ def show_errorband_charts(single, mean_df, power_df):
                               .encode(x=TIME, y=alt.Y("MEAN", title=POWER), yError="CONF"),
                               use_container_width=True)
 
+        # Create help modal
+        errorband_chart_modal = Modal("Inserting files", key="errorband_chart_modal")
+        open_modal = st.button("Help", key="errorband_chart_modal")
+
+        # Open modal if clicked
+        if open_modal:
+            with errorband_chart_modal.container():
+                st.markdown(helptekst_errorband_chart_modal)
+
+        st.markdown("---")
 
 # TODO: Add the average (so total) boxplot,
 #  Or for average power boxplot (like in our blogpost)
@@ -86,6 +108,16 @@ def generate_power_boxplot_charts(power_df):
     chart = alt.Chart(melted_pdf).mark_boxplot().interactive().encode(x="File:O", y=f"{POWER}:Q")
     st.altair_chart(chart, theme="streamlit", use_container_width=True)
 
+    # Create help modal
+    boxplot_modal = Modal("Inserting files", key="boxplot_modal")
+    open_modal = st.button("Help", key="boxplot_modal")
+
+    # Open modal if clicked
+    if open_modal:
+        with boxplot_modal.container():
+            st.markdown(helptekst_boxplot_modal)
+
+    st.markdown("---")
 
 # TODO: Information icon for the plots
 # The main script to run but scoped now
@@ -93,8 +125,18 @@ def main():
     # Upload multiple files
     uploaded_files = st.file_uploader("Upload CSV files", type=["csv"], accept_multiple_files=True)
 
+    #Create help modal
+    insert_files_modal = Modal("Inserting files", key="insert_files_modal")
+    open_modal = st.button("Help", key="insert_files_modal")
+
+    #Open modal if clicked
+    if open_modal:
+        with insert_files_modal.container():
+            st.markdown(helptekst_insert_files_analysis)
+
     # Process the uploaded files
     if uploaded_files:
+        st.markdown("---")
         # Retrieve the useful data formats and information from the uploaded files
         power_df, mean_df, total_energy = read_uploaded_files(uploaded_files)
         single = len(uploaded_files) == 1

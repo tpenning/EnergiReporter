@@ -1,6 +1,8 @@
 import altair as alt
 import pandas as pd
 import streamlit as st
+from streamlit_modal import Modal
+from Helpteksten import *
 
 from reader import read_uploaded_files
 
@@ -40,6 +42,16 @@ def show_mean_charts(singles, means_df):
                         .encode(x=TIME, y=POWER, color="Set:N", tooltip=["Set", POWER]),
                         use_container_width=True)
 
+    # Create help modal
+    boxplot_mean_chart_modal = Modal("Inserting files", key="boxplot_mean_chart_modal_comparison")
+    open_modal = st.button("Help", key="boxplot_mean_chart_modal_comparison")
+
+    # Open modal if clicked
+    if open_modal:
+        with boxplot_mean_chart_modal.container():
+            st.markdown(helptekst_mean_chart_modal)
+
+    st.markdown("---")
 
 # The main script to run but scoped now
 def main():
@@ -47,8 +59,19 @@ def main():
     uploaded_files1 = st.file_uploader("Upload first set of CSV files", type=["csv"], accept_multiple_files=True)
     uploaded_files2 = st.file_uploader("Upload second set of CSV files", type=["csv"], accept_multiple_files=True)
 
+    # Create help modal
+    boxplot_insert_files_comparison = Modal("Inserting files", key="boxplot_insert_files_comparison")
+    open_modal = st.button("Help", key="boxplot_mean_chart_modal")
+
+    # Open modal if clicked
+    if open_modal:
+        with boxplot_insert_files_comparison.container():
+            st.markdown(helptekst_insert_files_comparison)
+
     # Process the uploaded sets of files
     if uploaded_files1 and uploaded_files2:
+        st.markdown("---")
+
         # Initialize the lists to store the dataframes and additional information
         power_dfs = []
         mean_dfs = []
