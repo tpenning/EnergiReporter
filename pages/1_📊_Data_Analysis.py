@@ -15,14 +15,17 @@ st.set_page_config(page_title="Data Analysis", page_icon="📊")
 
 # Page information/text
 st.markdown("# Data Analysis")
-st.write("""
+st.markdown("""
     This page visualizes the energy data average over a single measurement or an average of measurements. 
     Upload your CSV file(s) adhering to the format specified on the home page to generate the charts.
     """)
 
 
 # TODO: Add a table of total energy consumptions
-def show_mean_charts(single, mean_df, total_energy):
+def show_mean_charts(single, mean_df, total_energies):
+    # TODO: Fix this
+    total_energy = round(total_energies[0], 2)
+
     # Retrieve the time column from the index
     mean_tdf = mean_df.reset_index()
 
@@ -146,13 +149,13 @@ def main():
     if uploaded_files:
         st.markdown("---")
         # Retrieve the useful data formats and information from the uploaded files
-        power_df, mean_df, total_energy, names, stat_pdfs = read_uploaded_files(uploaded_files)
+        power_df, mean_df, total_energies, names, stat_pdfs = read_uploaded_files(uploaded_files)
 
         # Whether a single file was uploaded, this is handled in each chart for all changes
         single = len(uploaded_files) == 1
 
         # Show the power data analysis charts
-        show_mean_charts(single, mean_df, total_energy)
+        show_mean_charts(single, mean_df, total_energies)
         show_errorband_charts(single, mean_df, power_df)
 
         # Perform outlier removal for the data statistics

@@ -10,7 +10,7 @@ st.set_page_config(page_title="Data Comparison", page_icon="📈")
 
 # Page information/text
 st.markdown("# Data Comparison")
-st.write("""
+st.markdown("""
     This page compares the energy data between two single or sets sets of measurements.
     Upload your (sets of) CSV files adhering to the format specified on the home page to generate the charts.
     """)
