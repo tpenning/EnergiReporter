@@ -13,7 +13,7 @@ st.set_page_config(page_title="Data Analysis", page_icon="📊")
 st.markdown("# Data Analysis")
 st.write("""
     This page visualizes the energy data average over a single measurement or an average of measurements. 
-    Upload your csv file(s) adhering to the format specified on the home page to generate the charts.
+    Upload your CSV file(s) adhering to the format specified on the home page to generate the charts.
     """)
 
 # Easy to use/rename variables
