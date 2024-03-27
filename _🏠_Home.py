@@ -12,8 +12,8 @@ st.markdown("""
     
     Currently, EnergiReporter was designed with the energy data file format of EnergiBridge in mind. 
     The uploaded file must be a CSV file with either one of the following columns reporting the 
-    total energy or power usage: "CPU_POWER (Watts)", "SYSTEM_POWER (Watts)", "CPU_ENERGY (J)", 
-    or "PACKAGE_ENERGY (J)". Additionally, it should provide a "Time" column in ms to correctly 
+    total energy or power usage: `CPU_POWER (Watts)`, `SYSTEM_POWER (Watts)`, `CPU_ENERGY (J)`, 
+    or `PACKAGE_ENERGY (J)`. Additionally, it should provide a `Time` column in ms to correctly 
     convert the data and display it over time.
     
     Any energy data file with the specified columns can be used to generate reports. If you wish 
