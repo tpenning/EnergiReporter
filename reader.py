@@ -5,7 +5,6 @@ TIME = "Time (s)"
 POWER = "Power (W)"
 
 
-# TODO: Test with scripts that have different time intervals (especially power extraction)
 def read_uploaded_files(uploaded_files):
     # Initialize the values to (intermediately) store the data
     total_energies = []
