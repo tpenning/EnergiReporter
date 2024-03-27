@@ -1,8 +1,9 @@
 import pandas as pd
-
+import numpy as np
+from scipy import stats
 
 # TODO: Test with scripts that have different time intervals (especially power extraction)
-def read_uploaded_files(uploaded_files):
+def read_uploaded_files(uploaded_files, outlier_removal_value):
     # Initialize the values to (intermediately) store the data
     total_energy = 0
     names = []
@@ -28,8 +29,12 @@ def read_uploaded_files(uploaded_files):
     power_df = pd.concat(pdfs, axis=1, keys=names)
     mean_df = power_df.mean(axis=1).to_frame().rename(columns={0: "Power (W)"})
 
+    # Remove outliers
+    std = power_df.std(axis=1)
+    power_df = power_df[(np.abs(stats.zscore(power_df)) < outlier_removal_value).all(axis=1)]
+
     # Average the total energy over all files
     total_energy = round(total_energy / len(uploaded_files), 2)
 
     # Return the retrieved data formats and information
-    return power_df, mean_df, total_energy
+    return power_df, mean_df, total_energy, names

@@ -2,6 +2,7 @@ import altair as alt
 import pandas as pd
 import streamlit as st
 from streamlit_modal import Modal
+import scipy.stats as stat
 from Helpteksten import *
 
 from reader import read_uploaded_files
@@ -19,7 +20,6 @@ st.write("""
 # Easy to use/rename variables
 TIME = "Time (s)"
 POWER = "Power (W)"
-
 
 def show_mean_charts(single, mean_df, total_energy):
     # Retrieve the time column from the index
@@ -94,6 +94,14 @@ def show_errorband_charts(single, mean_df, power_df):
 
         st.markdown("---")
 
+def normality_check(power_df, names):
+    transposed_list = list(map(list, zip(*power_df.values)))
+    pvalues = list(map(lambda data: stat.shapiro(data).pvalue, transposed_list))
+    normality_values = list(map(lambda pval: str(pval > 0.05), pvalues))
+
+    normality_df = pd.DataFrame(data={"NAME": names, "NORMAL": normality_values, "P-VALUE": pvalues})
+    st.dataframe(normality_df, hide_index=True)
+
 # TODO: Add the average (so total) boxplot,
 #  Or for average power boxplot (like in our blogpost)
 def generate_power_boxplot_charts(power_df):
@@ -125,6 +133,8 @@ def main():
     # Upload multiple files
     uploaded_files = st.file_uploader("Upload CSV files", type=["csv"], accept_multiple_files=True)
 
+    outlier_removal_value = st.number_input("Outlier removal:", value=3, step=1)
+
     #Create help modal
     insert_files_modal = Modal("Inserting files", key="insert_files_modal")
     open_modal = st.button("Help", key="insert_files_modal")
@@ -135,15 +145,17 @@ def main():
             st.markdown(helptekst_insert_files_analysis)
 
     # Process the uploaded files
-    if uploaded_files:
+    if uploaded_files and outlier_removal_value:
         st.markdown("---")
         # Retrieve the useful data formats and information from the uploaded files
-        power_df, mean_df, total_energy = read_uploaded_files(uploaded_files)
+        power_df, mean_df, total_energy, names = read_uploaded_files(uploaded_files, outlier_removal_value)
+
         single = len(uploaded_files) == 1
 
         # Show the data analysis charts (single indicated changes handled internally to easily keep the charts order)
         show_mean_charts(single, mean_df, total_energy)
         show_errorband_charts(single, mean_df, power_df)
+        normality_check(power_df, names)
         generate_power_boxplot_charts(power_df)
 
 
