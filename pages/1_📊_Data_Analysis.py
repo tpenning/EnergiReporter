@@ -1,4 +1,5 @@
 import altair as alt
+import matplotlib.pyplot as plt
 import pandas as pd
 from scipy import stats
 import streamlit as st
@@ -6,6 +7,8 @@ from streamlit_modal import Modal
 
 from Helpteksten import *
 from reader import outlier_removal_stat_pdfs, read_uploaded_files, POWER, TIME
+
+from reader import read_uploaded_files
 
 st.set_page_config(page_title="Data Analysis", page_icon="📊")
 
@@ -103,14 +106,11 @@ def normality_check(names, orv_pdfs_values):
 
 # TODO: Add the average (so total) boxplot,
 #  Or for average power boxplot (like in our blogpost)
-def generate_power_boxplot_charts(orv_power_df):
-    # Melt the dataframe to long format where each row is indicated by the run name
-    melted_pdf = orv_power_df.melt(var_name="File", value_name=POWER)
+def generate_power_boxplot_charts(names, orv_power_df):
+    plt.violinplot(dataset=[a for a in orv_power_df.T.values], showmedians=True)
+    plt.xticks(range(1, len(names) + 1), names)
 
-    # Create the boxplot chart
-    st.subheader("Power intervals boxplots:")
-    chart = alt.Chart(melted_pdf).mark_boxplot().interactive().encode(x="File:O", y=f"{POWER}:Q")
-    st.altair_chart(chart, theme="streamlit", use_container_width=True)
+    st.pyplot(plt.gcf())
 
     # Create help modal
     boxplot_modal = Modal("Inserting files", key="boxplot_modal")
@@ -162,7 +162,7 @@ def main():
 
         # Show the data statistics charts
         normality_check(names, orv_pdfs_values)
-        generate_power_boxplot_charts(orv_power_df)
+        generate_power_boxplot_charts(names, orv_power_df)
 
 
 # Run the main script
