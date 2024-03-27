@@ -24,8 +24,18 @@ def show_mean_charts(single, mean_df, names, total_energies):
     # Retrieve the time column from the index
     mean_tdf = mean_df.reset_index()
 
+    # Set the columns for the subheader and information icon
+    header, help_modal = st.columns([10, 1])
+
     # Show the header of this chart and information
-    st.subheader(f"Power consumption {'' if single else 'average '}over time:")
+    header.subheader(f"Power consumption {'' if single else 'average '}over time:")
+
+    # Create help modal
+    mean_chart_modal = Modal("Inserting files", key="mean_chart_modal")
+    open_modal = help_modal.button("❔", key="mean_chart_modal")
+    if open_modal:
+        with mean_chart_modal.container():
+            st.markdown(help_text_mean_chart_modal)
 
     # Show the (average) total energy used and average power consumption
     st.info(f"{'Total' if single else 'Average total'} energy usage: {round(statistics.mean(total_energies), 2)}J")
@@ -35,15 +45,6 @@ def show_mean_charts(single, mean_df, names, total_energies):
     tab_line.line_chart(mean_tdf, x=TIME, y=POWER, use_container_width=True)
     tab_area.area_chart(mean_tdf, x=TIME, y=POWER, use_container_width=True)
     tab_bar.bar_chart(mean_tdf, x=TIME, y=POWER, use_container_width=True)
-
-    # Create help modal
-    mean_chart_modal = Modal("Inserting files", key="mean_chart_modal")
-    open_modal = st.button("Help", key="mean_chart_modal")
-
-    # Open modal if clicked
-    if open_modal:
-        with mean_chart_modal.container():
-            st.markdown(help_text_mean_chart_modal)
 
     # Show a DataFrame with the total energy consumption for each file, if there are multiple
     if not single:
@@ -69,6 +70,19 @@ def show_errorband_charts(single, mean_df, power_df):
         std_df = pd.concat([mean_pdf, std_data], axis=1, keys=["MEAN", "STD"]).reset_index()
         conf_df = pd.concat([mean_pdf, conf_data], axis=1, keys=["MEAN", "CONF"]).reset_index()
 
+        # Set the columns for the subheader and information icon
+        header, help_modal = st.columns([10, 1])
+
+        # Show the header of this chart and information
+        header.subheader(f"Power consumption {'' if single else 'average '}over time:")
+
+        # Create help modal
+        errorband_chart_modal = Modal("Inserting files", key="errorband_chart_modal")
+        open_modal = help_modal.button("❔", key="errorband_chart_modal")
+        if open_modal:
+            with errorband_chart_modal.container():
+                st.markdown(help_text_errorband_chart_modal)
+
         # Create a tab element with the different errorband metrics
         st.subheader(f"Power consumption {'average ' if single else ''}over time with error bands:")
         tab_std, tab_conf = st.tabs(["STD Chart", "Conf Chart"])
@@ -86,15 +100,6 @@ def show_errorband_charts(single, mean_df, power_df):
                               alt.Chart(conf_df).mark_errorband(extent="ci")
                               .encode(x=TIME, y=alt.Y("MEAN", title=POWER), yError="CONF"),
                               use_container_width=True)
-
-        # Create help modal
-        errorband_chart_modal = Modal("Inserting files", key="errorband_chart_modal")
-        open_modal = st.button("Help", key="errorband_chart_modal")
-
-        # Open modal if clicked
-        if open_modal:
-            with errorband_chart_modal.container():
-                st.markdown(help_text_errorband_chart_modal)
         st.markdown("---")
 
 
