@@ -1,9 +1,14 @@
 import altair as alt
+import matplotlib.pyplot as plt
+import mpld3
+import numpy as np
 import pandas as pd
+from scipy import stats
 import streamlit as st
+import streamlit.components.v1 as components
 from streamlit_modal import Modal
-from help_texts import *
 
+from help_texts import *
 from reader import read_uploaded_files, POWER, TIME
 
 st.set_page_config(page_title="Data Comparison", page_icon="📈")
@@ -44,10 +49,51 @@ def show_mean_charts(singles, means_df):
     # Open modal if clicked
     if open_modal:
         with boxplot_mean_chart_modal.container():
-            st.markdown(helptekst_mean_chart_modal)
+            st.markdown(help_text_mean_chart_modal)
 
     st.markdown("---")
 
+def normality_check(names, orv_pdfs_values):
+    # Calculate the p values and get the corresponding normality values
+    p_values = list(map(lambda data: stats.shapiro(data).pvalue, orv_pdfs_values))
+    normality_values = list(map(lambda pval: str(pval > 0.05), p_values))
+
+    # Display the p and normality values in a DataFrame
+    normality_df = pd.DataFrame(data={"NAME": names, "NORMAL": normality_values, "P-VALUE": p_values})
+    st.dataframe(normality_df, hide_index=True)
+
+def generate_power_boxplot_charts(string, names, orv_pdfs_values):
+
+    st.subheader("Data distribution of Power: " + string)
+
+    st.markdown("""
+                The information below reports statistics about the power data. 
+                A common convention is to apply outlier removal on the data which we provide below.
+                Set the number of standard deviations to keep included (default 3).
+                """)
+    orv = st.number_input("Outlier removal:", value=3, step=1, min_value=1, key=string)
+    orv_pdfs_values = [stat_pdf[(np.abs(stats.zscore(stat_pdf)) < orv)].tolist() for stat_pdf in orv_pdfs_values]
+
+    normality_check(names, orv_pdfs_values)
+
+    # Create the violin plots of the data files
+    plt.figure()
+    plt.violinplot(dataset=orv_pdfs_values, showmedians=True)
+    plt.ylabel("Power (W)")
+    plt.xlabel("File")
+    plt.xticks(range(1, len(names) + 1), labels=names)
+
+    st.pyplot(plt.gcf())
+
+    # Create help modal
+    boxplot_modal = Modal("Inserting files", key="boxplot_modal_"+string)
+    open_modal = st.button("Help", key="boxplot_modal_"+string)
+
+    # Open modal if clicked
+    if open_modal:
+        with boxplot_modal.container():
+            st.markdown(help_text_boxplot_modal)
+    st.markdown("---")
 
 # The main script to run but scoped now
 def main():
@@ -62,7 +108,7 @@ def main():
     # Open modal if clicked
     if open_modal:
         with boxplot_insert_files_comparison.container():
-            st.markdown(helptekst_insert_files_comparison)
+            st.markdown(help_text_insert_files_comparison)
 
     # Process the uploaded sets of files
     if uploaded_files1 and uploaded_files2:
@@ -70,6 +116,8 @@ def main():
 
         # Initialize the lists to store the dataframes and additional information
         power_dfs = []
+        stat_pdfs = []
+        nameslist = []
         mean_dfs = []
         total_energies = []
         singles = []
@@ -77,9 +125,11 @@ def main():
         # Iterate over the uploaded sets of files
         for i, uploaded_files in enumerate([uploaded_files1, uploaded_files2]):
             # Retrieve the useful data formats and information from the uploaded files and set it in the lists
-            power_df, mean_df, total_energy = read_uploaded_files(uploaded_files)
+            power_df, mean_df, total_energy, names, stat_pdf = read_uploaded_files(uploaded_files)
             power_dfs.append(power_df)
+            stat_pdfs.append(stat_pdf)
             mean_dfs.append(mean_df)
+            nameslist.append(names)
             total_energies.append(total_energy)
             singles.append(len(uploaded_files) == 1)
 
@@ -88,6 +138,9 @@ def main():
 
         # Show the data analysis charts (single indicated changes handled internally to easily keep the charts order)
         show_mean_charts(singles, means_df)
+
+        generate_power_boxplot_charts("First dataset", nameslist[0], stat_pdfs[0])
+        generate_power_boxplot_charts("Second dataset", nameslist[1], stat_pdfs[1])
 
 
 # Run the main script
