@@ -6,6 +6,14 @@ POWER = "Power (W)"
 
 
 def read_uploaded_files(uploaded_files):
+    """
+    Read in a list of uploaded files and retrieve useful power df, power mean df, total energy usage, and
+    filenames information from them.
+
+    :param uploaded_files: The list of files that have been uploaded
+    :return: A full power DataFrame of all the files, the same but then the mean over all the files,
+    the list of total energy usage of all the files and the filenames
+    """
     # Initialize the values to (intermediately) store the data
     total_energies = []
     pdfs = []
@@ -39,6 +47,14 @@ def read_uploaded_files(uploaded_files):
 
 
 def extract_df(df):
+    """
+    Extract the time-power and total energy information from a DataFrame that should follow the
+    EnergiBridge CSV file format. Depending on which total energy or power column is present the
+    data is retrieved.
+
+    :param df: The DataFrame to extract
+    :return: A time-power DataFrame and the total energy consumption retrieved from the df data
+    """
     # The variables used to retrieve the energy and power
     total_time = 0
     time = []

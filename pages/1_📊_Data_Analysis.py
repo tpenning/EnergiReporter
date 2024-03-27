@@ -21,6 +21,15 @@ st.markdown("""
 
 
 def show_mean_charts(single, mean_df, names, total_energies):
+    """
+    This method shows the mean power consumption of all the files in various chart formats. Along with this
+    it displays extra information about the average energy usage and the totals of each file.
+
+    :param single: Whether a single file was uploaded
+    :param mean_df: The DataFrame with the mean data
+    :param names: The names of the uploaded files
+    :param total_energies: The list of total energy usage of each file
+    """
     # Retrieve the time column from the index
     mean_tdf = mean_df.reset_index()
 
@@ -56,6 +65,14 @@ def show_mean_charts(single, mean_df, names, total_energies):
 
 
 def show_errorband_charts(single, mean_df, power_df):
+    """
+    This method shows the mean power consumption of all the files with std and confidence intervals in
+    various chart formats.
+
+    :param single: Whether a single file was uploaded
+    :param mean_df: The DataFrame with the mean data
+    :param power_df: The DataFrame with all the files' data
+    """
     # Only show these if not just a single file
     if not single:
         # Get a time column mean df and a time indexed power column
@@ -103,6 +120,12 @@ def show_errorband_charts(single, mean_df, power_df):
 
 
 def normality_check(names, orv_pdfs_values):
+    """
+    Perform the normality checks of the individual data files and all files combined and display them.
+
+    :param names: The names of the uploaded files
+    :param orv_pdfs_values: The outlier removed values of all the files
+    """
     # Calculate the p values and get the corresponding normality values
     p_values = list(map(lambda data: stats.shapiro(data).pvalue, orv_pdfs_values))
     normality_values = list(map(lambda pval: str(pval > 0.05), p_values))
@@ -112,7 +135,13 @@ def normality_check(names, orv_pdfs_values):
     st.dataframe(normality_df, hide_index=True)
 
 
-def generate_power_boxplot_charts(names, orv_pdfs_values):
+def generate_power_violin_charts(names, orv_pdfs_values):
+    """
+    Generate the violin charts of the individual data files and all files combined and display them.
+
+    :param names: The names of the uploaded files
+    :param orv_pdfs_values: The outlier removed values of all the files
+    """
     # Create the violin plots of the data files
     plt.violinplot(dataset=orv_pdfs_values, showmedians=True)
     plt.ylabel("Power (W)")
@@ -125,6 +154,10 @@ def generate_power_boxplot_charts(names, orv_pdfs_values):
 
 # The main script to run but scoped now
 def main():
+    """
+    The file uploader with some help information is displayed. Then when one or more files is uploaded all
+    the data analysis charts and information is called to be displayed.
+    """
     # Upload multiple files
     uploaded_files = st.file_uploader("Upload CSV files", type=["csv"], accept_multiple_files=True)
 
@@ -173,7 +206,7 @@ def main():
 
         # Show the data statistics charts
         normality_check(names, orv_pdfs_values)
-        generate_power_boxplot_charts(names, orv_pdfs_values)
+        generate_power_violin_charts(names, orv_pdfs_values)
 
 
 # Run the main script

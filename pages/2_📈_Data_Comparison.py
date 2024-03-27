@@ -26,6 +26,15 @@ category_colors = alt.Color("Set:N", scale=alt.Scale(
 
 
 def show_mean_charts(singles, means_df, name_lists, all_total_energies):
+    """
+    This method shows the mean power consumption for each set in various chart formats. Along with this
+    it displays extra information about the total energy usage of each file for each set.
+
+    :param singles: A list indicating for each set whether a single file was uploaded
+    :param means_df: The DataFrame with the mean data for each set
+    :param name_lists: A list with the names of the uploaded files for each set
+    :param all_total_energies: A list of lists of the total energy usage of each file for each set
+    """
     # Retrieve the time column from the index
     means_tdf = means_df.reset_index()
 
@@ -69,6 +78,15 @@ def show_mean_charts(singles, means_df, name_lists, all_total_energies):
 
 
 def show_errorband_charts(singles, mean_dfs, power_dfs):
+    """
+    This method shows the mean power consumption of all the files with std and confidence intervals in
+    various chart formats. It does this for 2 (extendable to more) sets of data/information showing them
+    both in the same charts.
+
+    :param singles: A list indicating for each set whether a single file was uploaded
+    :param mean_dfs: A list of DataFrames with the mean data for each set
+    :param power_dfs: A list of DataFrames with all the files' data for each set
+    """
     if not any(singles):
         # Create the list to add the chart information in
         mean_tdfs = []
@@ -137,6 +155,12 @@ def show_errorband_charts(singles, mean_dfs, power_dfs):
 
 
 def normality_check(names, orv_pdfs_values):
+    """
+    Perform the normality checks of the individual data files and all files combined and display them.
+
+    :param names: The names of the uploaded files
+    :param orv_pdfs_values: The outlier removed values of all the files
+    """
     # Calculate the p values and get the corresponding normality values
     p_values = list(map(lambda data: stats.shapiro(data).pvalue, orv_pdfs_values))
     normality_values = list(map(lambda pval: str(pval > 0.05), p_values))
@@ -147,6 +171,14 @@ def normality_check(names, orv_pdfs_values):
 
 
 def generate_power_boxplot_charts(string, names, orv_pdfs_values):
+    """
+    Generate the violin charts of the individual data files and all files combined and display them,
+    all the information displayed is indicated with a string related to the set.
+
+    :param string: The string used to indicate the set of data used for the charts and more
+    :param names: The names of the uploaded files
+    :param orv_pdfs_values: The outlier removed values of all the files
+    """
     # Set the columns for the subheader and information icon
     header, help_modal = st.columns([10, 1])
 
@@ -186,6 +218,13 @@ def generate_power_boxplot_charts(string, names, orv_pdfs_values):
 
 
 def compare_statistical_analysis(data1, data2):
+    """
+    Statistical analysis is performed to find any significant relations between the data.
+    The results from various tests are reported to the user.
+
+    :param data1: The data of the first set
+    :param data2: The data of the second set
+    """
     # The header and the arrays
     st.subheader("Comparing the data with statistical analysis")
     data1 = [x for xs in data1 for x in xs]
@@ -212,6 +251,10 @@ def compare_statistical_analysis(data1, data2):
 
 # The main script to run but scoped now
 def main():
+    """
+    The file uploader with some help information is displayed. Then when one or more files is uploaded for both
+    sets all the data comparison charts and information is called to be displayed.
+    """
     # File uploaders for both sets of files
     upload_columns = st.columns(2)
     uploaded_files1 = upload_columns[0].file_uploader("Upload first set of CSV files",
