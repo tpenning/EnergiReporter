@@ -131,7 +131,6 @@ def generate_power_boxplot_charts(names, orv_pdfs_values):
             st.markdown(help_text_boxplot_modal)
     st.markdown("---")
 
-
 # TODO: Information icon for the plots
 # The main script to run but scoped now
 def main():
@@ -169,6 +168,9 @@ def main():
             """)
         orv = st.number_input("Outlier removal:", value=3, step=1, min_value=1)
         orv_pdfs_values = [stat_pdf[(np.abs(stats.zscore(stat_pdf)) < orv)].tolist() for stat_pdf in stat_pdfs]
+
+        orv_pdfs_values.append([x for xs in orv_pdfs_values for x in xs])
+        names.append("Total")
 
         # Show the data statistics charts
         normality_check(names, orv_pdfs_values)

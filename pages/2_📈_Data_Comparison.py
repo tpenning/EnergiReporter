@@ -74,15 +74,17 @@ def generate_power_boxplot_charts(string, names, orv_pdfs_values):
     orv = st.number_input("Outlier removal:", value=3, step=1, min_value=1, key=string)
     orv_pdfs_values = [stat_pdf[(np.abs(stats.zscore(stat_pdf)) < orv)].tolist() for stat_pdf in orv_pdfs_values]
 
+    orv_pdfs_values.append([x for xs in orv_pdfs_values for x in xs])
+    names.append("Total of " + string)
+
     normality_check(names, orv_pdfs_values)
 
     # Create the violin plots of the data files
     plt.figure()
-    orv_pdfs_values.append([x for xs in orv_pdfs_values for x in xs])
+
     plt.violinplot(dataset=orv_pdfs_values, showmedians=True)
     plt.ylabel("Power (W)")
     plt.xlabel("File")
-    names.append("Total of " + string)
     plt.xticks(range(1, len(names) + 1), labels=names)
 
     st.pyplot(plt.gcf())
@@ -96,6 +98,25 @@ def generate_power_boxplot_charts(string, names, orv_pdfs_values):
         with boxplot_modal.container():
             st.markdown(help_text_boxplot_modal)
     st.markdown("---")
+
+def compare(data1, data2):
+
+    st.subheader("Compare")
+
+    _, pvalue = stats.ttest_ind([x for xs in data1 for x in xs], [x for xs in data2 for x in xs], alternative="two-sided")
+
+    if pvalue >= 0.05:
+        st.write("According to Welch\'s t-test the difference is **NOT SIGNIFICANT** (with p-value " + str(pvalue) + " )")
+    else:
+        st.write("According to Welch\'s t-test the difference is **SIGNIFICANT** (with p-value " + str(pvalue) + " )")
+
+    _, pvalue = stats.mannwhitneyu([x for xs in data1 for x in xs], [x for xs in data2 for x in xs], alternative="two-sided")
+
+    if pvalue >= 0.05:
+        st.write("According to the MannWhitneyU-test the difference is **NOT SIGNIFICANT** (with p-value " + str(pvalue) + " )")
+    else:
+        st.write("According to the MannWhitneyU-test the difference is **SIGNIFICANT** (with p-value " + str(pvalue) + " )")
+
 
 # The main script to run but scoped now
 def main():
@@ -144,6 +165,7 @@ def main():
         generate_power_boxplot_charts("First dataset", nameslist[0], stat_pdfs[0])
         generate_power_boxplot_charts("Second dataset", nameslist[1], stat_pdfs[1])
 
+        compare(stat_pdfs[0], stat_pdfs[1])
 
 # Run the main script
 main()
