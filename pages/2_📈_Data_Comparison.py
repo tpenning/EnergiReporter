@@ -111,29 +111,29 @@ def generate_power_boxplot_charts(string, names, orv_pdfs_values):
     st.markdown("---")
 
 
-def compare(data1, data2):
-    st.subheader("Compare")
-
+def compare_statistical_analysis(data1, data2):
+    # The header and the arrays
+    st.subheader("Comparing the data with statistical analysis")
     data1 = [x for xs in data1 for x in xs]
     data2 = [x for xs in data2 for x in xs]
 
-    _, pvalue = stats.ttest_ind(data1, data2, alternative="two-sided")
+    # Show the Welch's t-test results
+    _, p_value1 = stats.ttest_ind(data1, data2, alternative="two-sided")
+    st.markdown(f"According to [Welch\'s t-test](https://en.wikipedia.org/wiki/Welch%27s_t-test) "
+                f"the difference is **{'NOT ' if p_value1 >= 0.05 else ''}SIGNIFICANT** "
+                f"(with p-value {round(p_value1, 4)})")
 
-    if pvalue >= 0.05:
-        st.write("According to Welch\'s t-test the difference is **NOT SIGNIFICANT** (with p-value " + str(pvalue) + " )")
-    else:
-        st.write("According to Welch\'s t-test the difference is **SIGNIFICANT** (with p-value " + str(pvalue) + " )")
+    # Show the MannWhitneyU-test results
+    _, p_value2 = stats.mannwhitneyu(data1, data2, alternative="two-sided")
+    st.markdown(f"According to the [MannWhitneyU-test](https://en.wikipedia.org/wiki/Mann%E2%80%93Whitney_U_test) "
+                f"the difference is **{'NOT ' if p_value2 >= 0.05 else ''}SIGNIFICANT** "
+                f"(with p-value {round(p_value2, 4)})")
 
-    _, pvalue = stats.mannwhitneyu(data1, data2, alternative="two-sided")
-
-    if pvalue >= 0.05:
-        st.write("According to the MannWhitneyU-test the difference is **NOT SIGNIFICANT** (with p-value " + str(pvalue) + " )")
-    else:
-        st.write("According to the MannWhitneyU-test the difference is **SIGNIFICANT** (with p-value " + str(pvalue) + " )")
-
-    data1higher = min(100, 100 * len(list(filter(lambda s: s[0] > s[1], zip(data1, data2)))) / min(len(data1), len(data2)))
-    st.write("According to the Percentage of Pairs test, the first set has a higher power than the second set "
-             "in " + str(data1higher) + "% of the measurements")
+    # Show the Percentage of Pairs test results
+    data1higher = round(min(100, 100 * len(list(filter(lambda s: s[0] > s[1], zip(data1, data2)))) /
+                            min(len(data1), len(data2))), 2)
+    st.markdown(f"According to the Percentage of Pairs test, the first set has a higher power than the second set "
+                f"in {data1higher}% of the measurements")
 
 
 # The main script to run but scoped now
@@ -184,7 +184,7 @@ def main():
         generate_power_boxplot_charts("First dataset", name_lists[0], stat_pdfs[0])
         generate_power_boxplot_charts("Second dataset", name_lists[1], stat_pdfs[1])
 
-        compare(stat_pdfs[0], stat_pdfs[1])
+        compare_statistical_analysis(stat_pdfs[0], stat_pdfs[1])
 
 
 # Run the main script
