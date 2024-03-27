@@ -4,6 +4,8 @@ import streamlit as st
 from streamlit_modal import Modal
 import scipy.stats as stat
 from Helpteksten import *
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 from reader import read_uploaded_files
 
@@ -104,7 +106,8 @@ def normality_check(power_df, names):
 
 # TODO: Add the average (so total) boxplot,
 #  Or for average power boxplot (like in our blogpost)
-def generate_power_boxplot_charts(power_df):
+def generate_power_boxplot_charts(power_df, names):
+
     # Drop the time index to only get the power data
     pdf = power_df.reset_index(drop=True)
 
@@ -112,9 +115,14 @@ def generate_power_boxplot_charts(power_df):
     melted_pdf = pdf.melt(var_name="File", value_name=POWER)
 
     # Create the boxplot chart
-    st.subheader("Power intervals boxplots:")
-    chart = alt.Chart(melted_pdf).mark_boxplot().interactive().encode(x="File:O", y=f"{POWER}:Q")
-    st.altair_chart(chart, theme="streamlit", use_container_width=True)
+    # st.subheader("Power intervals boxplots:")
+    # chart = alt.Chart(melted_pdf).mark_boxplot().interactive().encode(x="File:O", y=f"{POWER}:Q")
+    # st.altair_chart(chart, theme="streamlit", use_container_width=True)
+
+    plt.violinplot(dataset=[a for a in pdf.T.values], showmedians=True)
+    plt.xticks(range(1, len(names) + 1), names)
+
+    st.pyplot(plt.gcf())
 
     # Create help modal
     boxplot_modal = Modal("Inserting files", key="boxplot_modal")
@@ -156,7 +164,7 @@ def main():
         show_mean_charts(single, mean_df, total_energy)
         show_errorband_charts(single, mean_df, power_df)
         normality_check(power_df, names)
-        generate_power_boxplot_charts(power_df)
+        generate_power_boxplot_charts(power_df, names)
 
 
 # Run the main script
