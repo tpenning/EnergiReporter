@@ -48,7 +48,7 @@ def show_mean_charts(single, mean_df, total_energies):
     # Open modal if clicked
     if open_modal:
         with mean_chart_modal.container():
-            st.markdown(helptekst_mean_chart_modal)
+            st.markdown(help_text_mean_chart_modal)
 
     st.markdown("---")
 
@@ -93,12 +93,13 @@ def show_errorband_charts(single, mean_df, power_df):
         # Open modal if clicked
         if open_modal:
             with errorband_chart_modal.container():
-                st.markdown(helptekst_errorband_chart_modal)
+                st.markdown(help_text_errorband_chart_modal)
 
         st.markdown("---")
 
 
 def normality_check(names, orv_pdfs_values):
+
     # Calculate the p values and get the corresponding normality values
     p_values = list(map(lambda data: stats.shapiro(data).pvalue, orv_pdfs_values))
     normality_values = list(map(lambda pval: str(pval > 0.05), p_values))
@@ -111,13 +112,14 @@ def normality_check(names, orv_pdfs_values):
 # TODO: Add the average (so total) boxplot,
 #  Or for average power boxplot (like in our blogpost)
 def generate_power_boxplot_charts(names, orv_pdfs_values):
-    # TODO: Add name and title
-    # Create the violin plots of the data files
-    fig = plt.figure()
-    plt.violinplot(dataset=orv_pdfs_values, showmedians=True)
-    plt.xticks(range(1, len(names) + 1), names)
 
-    components.html(mpld3.fig_to_html(fig), height=600)
+    # Create the violin plots of the data files
+    plt.violinplot(dataset=orv_pdfs_values, showmedians=True)
+    plt.ylabel("Power (W)")
+    plt.xlabel("File")
+    plt.xticks(range(1, len(names) + 1), labels=names)
+
+    st.pyplot(plt.gcf())
 
     # Create help modal
     boxplot_modal = Modal("Inserting files", key="boxplot_modal")
@@ -126,7 +128,7 @@ def generate_power_boxplot_charts(names, orv_pdfs_values):
     # Open modal if clicked
     if open_modal:
         with boxplot_modal.container():
-            st.markdown(helptekst_boxplot_modal)
+            st.markdown(help_text_boxplot_modal)
     st.markdown("---")
 
 
@@ -143,7 +145,7 @@ def main():
     # Open modal if clicked
     if open_modal:
         with insert_files_modal.container():
-            st.markdown(helptekst_insert_files_analysis)
+            st.markdown(help_text_insert_files_analysis)
 
     # Process the uploaded files
     if uploaded_files:
@@ -158,6 +160,7 @@ def main():
         show_mean_charts(single, mean_df, total_energies)
         show_errorband_charts(single, mean_df, power_df)
 
+        st.subheader("Data distribution of Power")
         # Perform outlier removal for the data statistics
         st.markdown("""
             The information below reports statistics about the power data. 
