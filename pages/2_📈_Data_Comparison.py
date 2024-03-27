@@ -2,7 +2,7 @@ import altair as alt
 import pandas as pd
 import streamlit as st
 from streamlit_modal import Modal
-from Helpteksten import *
+from Helpteksts import *
 
 from reader import read_uploaded_files
 

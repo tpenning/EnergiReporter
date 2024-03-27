@@ -2,9 +2,11 @@ import altair as alt
 import pandas as pd
 import streamlit as st
 from streamlit_modal import Modal
+import streamlit.components.v1 as components
 import scipy.stats as stat
-from Helpteksten import *
+from Helpteksts import *
 import matplotlib.pyplot as plt
+import mpld3
 
 from reader import read_uploaded_files
 
@@ -122,10 +124,11 @@ def generate_power_boxplot_charts(power_df, names):
     # chart = alt.Chart(melted_pdf).mark_boxplot().interactive().encode(x="File:O", y=f"{POWER}:Q")
     # st.altair_chart(chart, theme="streamlit", use_container_width=True)
 
+    fig = plt.figure()
     plt.violinplot(dataset=[a for a in pdf.T.values], showmedians=True)
     plt.xticks(range(1, len(names) + 1), names)
 
-    st.pyplot(plt.gcf())
+    components.html(mpld3.fig_to_html(fig), height=600)
 
     # Create help modal
     boxplot_modal = Modal("Inserting files", key="boxplot_modal")
