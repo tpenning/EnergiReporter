@@ -8,7 +8,7 @@ import streamlit as st
 import streamlit.components.v1 as components
 from streamlit_modal import Modal
 
-from Helpteksten import *
+from help_texts import *
 from reader import read_uploaded_files, POWER, TIME
 
 st.set_page_config(page_title="Data Analysis", page_icon="📊")
@@ -107,21 +107,11 @@ def normality_check(names, orv_pdfs_values):
 
 # TODO: Add the average (so total) boxplot,
 #  Or for average power boxplot (like in our blogpost)
-def generate_power_boxplot_charts(power_df, names):
-
-    # Drop the time index to only get the power data
-    pdf = power_df.reset_index(drop=True)
-
-    # Melt the dataframe to long format where each row is indicated by the run name
-    melted_pdf = pdf.melt(var_name="File", value_name=POWER)
-
-    # Create the boxplot chart
-    # st.subheader("Power intervals boxplots:")
-    # chart = alt.Chart(melted_pdf).mark_boxplot().interactive().encode(x="File:O", y=f"{POWER}:Q")
-    # st.altair_chart(chart, theme="streamlit", use_container_width=True)
-
+def generate_power_boxplot_charts(names, orv_pdfs_values):
+    # TODO: Add name and title
+    # Create the violin plots of the data files
     fig = plt.figure()
-    plt.violinplot(dataset=[a for a in pdf.T.values], showmedians=True)
+    plt.violinplot(dataset=orv_pdfs_values, showmedians=True)
     plt.xticks(range(1, len(names) + 1), names)
 
     components.html(mpld3.fig_to_html(fig), height=600)
