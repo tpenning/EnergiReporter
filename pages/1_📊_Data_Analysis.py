@@ -1,12 +1,11 @@
 import altair as alt
-import numpy as np
 import pandas as pd
 from scipy import stats
 import streamlit as st
 from streamlit_modal import Modal
 
 from Helpteksten import *
-from reader import read_uploaded_files, ENERGY, POWER, TIME
+from reader import outlier_removal_stat_pdfs, read_uploaded_files, POWER, TIME
 
 st.set_page_config(page_title="Data Analysis", page_icon="📊")
 
@@ -92,23 +91,21 @@ def show_errorband_charts(single, mean_df, power_df):
         st.markdown("---")
 
 
-def normality_check(power_df, names):
-    transposed_list = list(map(list, zip(*power_df.values)))
-    pvalues = list(map(lambda data: stats.shapiro(data).pvalue, transposed_list))
-    normality_values = list(map(lambda pval: str(pval > 0.05), pvalues))
+def normality_check(names, orv_pdfs_values):
+    # Calculate the p values and get the corresponding normality values
+    p_values = list(map(lambda data: stats.shapiro(data).pvalue, orv_pdfs_values))
+    normality_values = list(map(lambda pval: str(pval > 0.05), p_values))
 
-    normality_df = pd.DataFrame(data={"NAME": names, "NORMAL": normality_values, "P-VALUE": pvalues})
+    # Display the p and normality values in a DataFrame
+    normality_df = pd.DataFrame(data={"NAME": names, "NORMAL": normality_values, "P-VALUE": p_values})
     st.dataframe(normality_df, hide_index=True)
 
 
 # TODO: Add the average (so total) boxplot,
 #  Or for average power boxplot (like in our blogpost)
-def generate_power_boxplot_charts(power_df):
-    # Drop the time index to only get the power data
-    pdf = power_df.reset_index(drop=True)
-
+def generate_power_boxplot_charts(orv_power_df):
     # Melt the dataframe to long format where each row is indicated by the run name
-    melted_pdf = pdf.melt(var_name="File", value_name=POWER)
+    melted_pdf = orv_power_df.melt(var_name="File", value_name=POWER)
 
     # Create the boxplot chart
     st.subheader("Power intervals boxplots:")
@@ -123,7 +120,6 @@ def generate_power_boxplot_charts(power_df):
     if open_modal:
         with boxplot_modal.container():
             st.markdown(helptekst_boxplot_modal)
-
     st.markdown("---")
 
 
@@ -146,7 +142,7 @@ def main():
     if uploaded_files:
         st.markdown("---")
         # Retrieve the useful data formats and information from the uploaded files
-        power_df, mean_df, total_energy, names = read_uploaded_files(uploaded_files)
+        power_df, mean_df, total_energy, names, stat_pdfs = read_uploaded_files(uploaded_files)
 
         # Whether a single file was uploaded, this is handled in each chart for all changes
         single = len(uploaded_files) == 1
@@ -162,10 +158,10 @@ def main():
             Set the number of standard deviations to keep included (default 3).
             """)
         outlier_removal_value = st.number_input("Outlier removal:", value=3, step=1, min_value=1)
-        orv_power_df = power_df[(np.abs(stats.zscore(power_df)) < outlier_removal_value).all(axis=1)]
+        orv_power_df, orv_pdfs_values = outlier_removal_stat_pdfs(names, stat_pdfs, outlier_removal_value)
 
         # Show the data statistics charts
-        normality_check(orv_power_df, names)
+        normality_check(names, orv_pdfs_values)
         generate_power_boxplot_charts(orv_power_df)
 
 

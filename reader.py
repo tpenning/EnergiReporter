@@ -1,7 +1,8 @@
+import numpy as np
 import pandas as pd
+from scipy import stats
 
 # Easy to use/rename variables for the columns used
-ENERGY = "Energy (J)"
 POWER = "Power (W)"
 TIME = "Time (s)"
 
@@ -10,8 +11,8 @@ TIME = "Time (s)"
 def read_uploaded_files(uploaded_files):
     # Initialize the values to (intermediately) store the data
     total_energy = 0
-    names = []
     pdfs = []
+    names = []
 
     # Iterate over the uploaded files
     for uploaded_file in uploaded_files:
@@ -36,5 +37,22 @@ def read_uploaded_files(uploaded_files):
     # Average the total energy over all files
     total_energy = round(total_energy / len(uploaded_files), 2)
 
+    # Create a pdfs copy without the time indexing for the data statistics
+    stat_pdfs = [df.reset_index(drop=True) for df in pdfs]
+
     # Return the retrieved data formats and information
-    return power_df, mean_df, total_energy, names
+    return power_df, mean_df, total_energy, names, stat_pdfs
+
+
+def outlier_removal_stat_pdfs(names, stat_pdfs, orv):
+    # Apply outlier removal on each power DataFrame
+    orv_pdfs = [stat_pdf[(np.abs(stats.zscore(stat_pdf)) < orv)] for stat_pdf in stat_pdfs]
+
+    # Concatenate the orv stat pdfs in an orv power DataFrame
+    orv_power_df = pd.concat(orv_pdfs, axis=1, keys=names)
+
+    # Convert the orv stat pdfs to value lists
+    orv_pdfs_values = [orv_pdf.tolist() for orv_pdf in orv_pdfs]
+
+    # Return the created orv data structures
+    return orv_power_df, orv_pdfs_values

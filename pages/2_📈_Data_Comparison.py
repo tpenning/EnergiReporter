@@ -4,7 +4,7 @@ import streamlit as st
 from streamlit_modal import Modal
 from Helpteksten import *
 
-from reader import read_uploaded_files, ENERGY, POWER, TIME
+from reader import read_uploaded_files, POWER, TIME
 
 st.set_page_config(page_title="Data Comparison", page_icon="📈")
 
