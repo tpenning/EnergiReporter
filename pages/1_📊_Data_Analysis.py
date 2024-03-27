@@ -1,9 +1,11 @@
 import altair as alt
 import matplotlib.pyplot as plt
+import mpld3
 import numpy as np
 import pandas as pd
 from scipy import stats
 import streamlit as st
+import streamlit.components.v1 as components
 from streamlit_modal import Modal
 
 from Helpteksten import *
@@ -105,11 +107,24 @@ def normality_check(names, orv_pdfs_values):
 
 # TODO: Add the average (so total) boxplot,
 #  Or for average power boxplot (like in our blogpost)
-def generate_power_boxplot_charts(names, orv_pdfs_values):
-    # Create the violin plots
-    plt.violinplot(dataset=orv_pdfs_values, showmedians=True)
+def generate_power_boxplot_charts(power_df, names):
+
+    # Drop the time index to only get the power data
+    pdf = power_df.reset_index(drop=True)
+
+    # Melt the dataframe to long format where each row is indicated by the run name
+    melted_pdf = pdf.melt(var_name="File", value_name=POWER)
+
+    # Create the boxplot chart
+    # st.subheader("Power intervals boxplots:")
+    # chart = alt.Chart(melted_pdf).mark_boxplot().interactive().encode(x="File:O", y=f"{POWER}:Q")
+    # st.altair_chart(chart, theme="streamlit", use_container_width=True)
+
+    fig = plt.figure()
+    plt.violinplot(dataset=[a for a in pdf.T.values], showmedians=True)
     plt.xticks(range(1, len(names) + 1), names)
-    st.pyplot(plt.gcf())
+
+    components.html(mpld3.fig_to_html(fig), height=600)
 
     # Create help modal
     boxplot_modal = Modal("Inserting files", key="boxplot_modal")
