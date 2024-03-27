@@ -10,10 +10,9 @@ st.set_page_config(page_title="Data Analysis", page_icon="📊")
 
 # Page information/text
 st.markdown("# Data Analysis")
-st.sidebar.header("Data Analysis")
 st.write("""
     This page visualizes the energy data average over a single measurement or an average of measurements. 
-    Upload your csv file(s) with columns TIME and ENERGY to generate the charts.
+    Upload your csv file(s) adhering to the format specified on the home page to generate the charts.
     """)
 
 # Easy to use/rename variables
@@ -49,6 +48,7 @@ def show_mean_charts(single, mean_df, total_energy):
             st.markdown(helptekst_mean_chart_modal)
 
     st.markdown("---")
+
 
 def show_errorband_charts(single, mean_df, power_df):
     # Only show these if not just a single file
@@ -94,6 +94,7 @@ def show_errorband_charts(single, mean_df, power_df):
 
         st.markdown("---")
 
+
 # TODO: Add the average (so total) boxplot,
 #  Or for average power boxplot (like in our blogpost)
 def generate_power_boxplot_charts(power_df):
@@ -118,6 +119,7 @@ def generate_power_boxplot_charts(power_df):
             st.markdown(helptekst_boxplot_modal)
 
     st.markdown("---")
+
 
 # TODO: Information icon for the plots
 # The main script to run but scoped now

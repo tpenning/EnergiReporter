@@ -10,10 +10,9 @@ st.set_page_config(page_title="Data Comparison", page_icon="📈")
 
 # Page information/text
 st.markdown("# Data Comparison")
-st.sidebar.header("Data Comparison")
 st.write("""
     This page compares the energy data between two single or sets sets of measurements.
-    Upload your (sets of) csv files with columns TIME and ENERGY to generate the charts.
+    Upload your (sets of) csv files adhering to the format specified on the home page to generate the charts.
     """)
 
 # Easy to use/rename variables
