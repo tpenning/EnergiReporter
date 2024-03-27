@@ -74,7 +74,7 @@ def show_errorband_charts(single, mean_df, power_df):
         header, help_modal = st.columns([10, 1])
 
         # Show the header of this chart and information
-        header.subheader(f"Power consumption {'' if single else 'average '}over time:")
+        header.subheader(f"Power consumption {'average ' if single else ''}over time with error bands:")
 
         # Create help modal
         errorband_chart_modal = Modal("Inserting files", key="errorband_chart_modal")
@@ -84,7 +84,6 @@ def show_errorband_charts(single, mean_df, power_df):
                 st.markdown(help_text_errorband_chart_modal)
 
         # Create a tab element with the different errorband metrics
-        st.subheader(f"Power consumption {'average ' if single else ''}over time with error bands:")
         tab_std, tab_conf = st.tabs(["STD Chart", "Conf Chart"])
 
         # Add the tab charts with the error bands
@@ -103,7 +102,6 @@ def show_errorband_charts(single, mean_df, power_df):
         st.markdown("---")
 
 
-# TODO: Fix this as it is currently incorrect
 def normality_check(names, orv_pdfs_values):
     # Calculate the p values and get the corresponding normality values
     p_values = list(map(lambda data: stats.shapiro(data).pvalue, orv_pdfs_values))
@@ -114,8 +112,6 @@ def normality_check(names, orv_pdfs_values):
     st.dataframe(normality_df, hide_index=True)
 
 
-# TODO: Add the average (so total) boxplot,
-#  Or for average power boxplot (like in our blogpost)
 def generate_power_boxplot_charts(names, orv_pdfs_values):
     # Create the violin plots of the data files
     plt.violinplot(dataset=orv_pdfs_values, showmedians=True)
@@ -124,18 +120,9 @@ def generate_power_boxplot_charts(names, orv_pdfs_values):
     plt.xticks(range(1, len(names) + 1), labels=names)
 
     st.pyplot(plt.gcf())
-
-    # Create help modal
-    boxplot_modal = Modal("Inserting files", key="boxplot_modal")
-    open_modal = st.button("Help", key="boxplot_modal")
-
-    # Open modal if clicked
-    if open_modal:
-        with boxplot_modal.container():
-            st.markdown(help_text_boxplot_modal)
     st.markdown("---")
 
-# TODO: Information icon for the plots
+
 # The main script to run but scoped now
 def main():
     # Upload multiple files
@@ -143,9 +130,7 @@ def main():
 
     # Create help modal
     insert_files_modal = Modal("Inserting files", key="insert_files_modal")
-    open_modal = st.button("Help", key="insert_files_modal")
-
-    # Open modal if clicked
+    open_modal = st.button("❔", key="insert_files_modal")
     if open_modal:
         with insert_files_modal.container():
             st.markdown(help_text_insert_files_analysis)
@@ -163,7 +148,17 @@ def main():
         show_mean_charts(single, mean_df, names, total_energies)
         show_errorband_charts(single, mean_df, power_df)
 
-        st.subheader("Data distribution of Power")
+        # Set the columns for the subheader and information icon
+        header, help_modal = st.columns([10, 1])
+        header.subheader("Data distribution of Power")
+
+        # Create help modal
+        boxplot_modal = Modal("Inserting files", key="boxplot_modal")
+        open_modal = help_modal.button("❔", key="boxplot_modal")
+        if open_modal:
+            with boxplot_modal.container():
+                st.markdown(help_text_boxplot_modal)
+
         # Perform outlier removal for the data statistics
         st.markdown("""
             The information below reports statistics about the power data. 
