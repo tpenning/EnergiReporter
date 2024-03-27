@@ -1,11 +1,10 @@
 import altair as alt
 import matplotlib.pyplot as plt
-import mpld3
 import numpy as np
 import pandas as pd
 from scipy import stats
+import statistics
 import streamlit as st
-import streamlit.components.v1 as components
 from streamlit_modal import Modal
 
 from help_texts import *
@@ -21,11 +20,7 @@ st.markdown("""
     """)
 
 
-# TODO: Add a table of total energy consumptions
-def show_mean_charts(single, mean_df, total_energies):
-    # TODO: Fix this
-    total_energy = round(total_energies[0], 2)
-
+def show_mean_charts(single, mean_df, names, total_energies):
     # Retrieve the time column from the index
     mean_tdf = mean_df.reset_index()
 
@@ -33,7 +28,7 @@ def show_mean_charts(single, mean_df, total_energies):
     st.subheader(f"Power consumption {'' if single else 'average '}over time:")
 
     # Show the (average) total energy used and average power consumption
-    st.info(f"{'Total' if single else 'Average total'} energy usage: {total_energy}J")
+    st.info(f"{'Total' if single else 'Average total'} energy usage: {round(statistics.mean(total_energies), 2)}J")
 
     # Create a tab element with the different chart variations
     tab_line, tab_area, tab_bar = st.tabs(["Line Chart", "Area Chart", "Bar Chart"])
@@ -50,6 +45,12 @@ def show_mean_charts(single, mean_df, total_energies):
         with mean_chart_modal.container():
             st.markdown(help_text_mean_chart_modal)
 
+    # Show a DataFrame with the total energy consumption for each file, if there are multiple
+    if not single:
+        st.markdown("Total energy consumption of all the uploaded files:")
+        energy_usage_df = pd.DataFrame(data={"FILE": names,
+                                             "TOTAL ENERGY": [f"{round(te, 2)}J" for te in total_energies]})
+        st.dataframe(energy_usage_df, hide_index=True)
     st.markdown("---")
 
 
@@ -94,25 +95,23 @@ def show_errorband_charts(single, mean_df, power_df):
         if open_modal:
             with errorband_chart_modal.container():
                 st.markdown(help_text_errorband_chart_modal)
-
         st.markdown("---")
 
 
+# TODO: Fix this as it is currently incorrect
 def normality_check(names, orv_pdfs_values):
-
     # Calculate the p values and get the corresponding normality values
     p_values = list(map(lambda data: stats.shapiro(data).pvalue, orv_pdfs_values))
     normality_values = list(map(lambda pval: str(pval > 0.05), p_values))
 
     # Display the p and normality values in a DataFrame
-    normality_df = pd.DataFrame(data={"NAME": names, "NORMAL": normality_values, "P-VALUE": p_values})
+    normality_df = pd.DataFrame(data={"FILE": names, "NORMAL": normality_values, "P-VALUE": p_values})
     st.dataframe(normality_df, hide_index=True)
 
 
 # TODO: Add the average (so total) boxplot,
 #  Or for average power boxplot (like in our blogpost)
 def generate_power_boxplot_charts(names, orv_pdfs_values):
-
     # Create the violin plots of the data files
     plt.violinplot(dataset=orv_pdfs_values, showmedians=True)
     plt.ylabel("Power (W)")
@@ -157,7 +156,7 @@ def main():
         single = len(uploaded_files) == 1
 
         # Show the power data analysis charts
-        show_mean_charts(single, mean_df, total_energies)
+        show_mean_charts(single, mean_df, names, total_energies)
         show_errorband_charts(single, mean_df, power_df)
 
         st.subheader("Data distribution of Power")
