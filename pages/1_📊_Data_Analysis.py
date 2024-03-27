@@ -1,11 +1,12 @@
 import altair as alt
+import numpy as np
 import pandas as pd
+from scipy import stats
 import streamlit as st
 from streamlit_modal import Modal
-import scipy.stats as stat
 
 from Helpteksten import *
-from reader import read_uploaded_files
+from reader import read_uploaded_files, ENERGY, POWER, TIME
 
 st.set_page_config(page_title="Data Analysis", page_icon="📊")
 
@@ -16,11 +17,8 @@ st.write("""
     Upload your CSV file(s) adhering to the format specified on the home page to generate the charts.
     """)
 
-# Easy to use/rename variables
-TIME = "Time (s)"
-POWER = "Power (W)"
 
-
+# TODO: Add a table of total energy consumptions
 def show_mean_charts(single, mean_df, total_energy):
     # Retrieve the time column from the index
     mean_tdf = mean_df.reset_index()
@@ -30,8 +28,6 @@ def show_mean_charts(single, mean_df, total_energy):
 
     # Show the (average) total energy used and average power consumption
     st.info(f"{'Total' if single else 'Average total'} energy usage: {total_energy}J")
-    # TODO: Add average power consumption (requires more complex math than first intuition)
-    # st.write(f"Average power consumption: {00000}W")
 
     # Create a tab element with the different chart variations
     tab_line, tab_area, tab_bar = st.tabs(["Line Chart", "Area Chart", "Bar Chart"])
@@ -98,7 +94,7 @@ def show_errorband_charts(single, mean_df, power_df):
 
 def normality_check(power_df, names):
     transposed_list = list(map(list, zip(*power_df.values)))
-    pvalues = list(map(lambda data: stat.shapiro(data).pvalue, transposed_list))
+    pvalues = list(map(lambda data: stats.shapiro(data).pvalue, transposed_list))
     normality_values = list(map(lambda pval: str(pval > 0.05), pvalues))
 
     normality_df = pd.DataFrame(data={"NAME": names, "NORMAL": normality_values, "P-VALUE": pvalues})
@@ -137,30 +133,40 @@ def main():
     # Upload multiple files
     uploaded_files = st.file_uploader("Upload CSV files", type=["csv"], accept_multiple_files=True)
 
-    outlier_removal_value = st.number_input("Outlier removal:", value=3, step=1)
-
-    #Create help modal
+    # Create help modal
     insert_files_modal = Modal("Inserting files", key="insert_files_modal")
     open_modal = st.button("Help", key="insert_files_modal")
 
-    #Open modal if clicked
+    # Open modal if clicked
     if open_modal:
         with insert_files_modal.container():
             st.markdown(helptekst_insert_files_analysis)
 
     # Process the uploaded files
-    if uploaded_files and outlier_removal_value:
+    if uploaded_files:
         st.markdown("---")
         # Retrieve the useful data formats and information from the uploaded files
-        power_df, mean_df, total_energy, names = read_uploaded_files(uploaded_files, outlier_removal_value)
+        power_df, mean_df, total_energy, names = read_uploaded_files(uploaded_files)
 
+        # Whether a single file was uploaded, this is handled in each chart for all changes
         single = len(uploaded_files) == 1
 
-        # Show the data analysis charts (single indicated changes handled internally to easily keep the charts order)
+        # Show the power data analysis charts
         show_mean_charts(single, mean_df, total_energy)
         show_errorband_charts(single, mean_df, power_df)
-        normality_check(power_df, names)
-        generate_power_boxplot_charts(power_df)
+
+        # Perform outlier removal for the data statistics
+        st.markdown("""
+            The information below reports statistics about the power data. 
+            A common convention is to apply outlier removal on the data which we provide below.
+            Set the number of standard deviations to keep included (default 3).
+            """)
+        outlier_removal_value = st.number_input("Outlier removal:", value=3, step=1, min_value=1)
+        orv_power_df = power_df[(np.abs(stats.zscore(power_df)) < outlier_removal_value).all(axis=1)]
+
+        # Show the data statistics charts
+        normality_check(orv_power_df, names)
+        generate_power_boxplot_charts(orv_power_df)
 
 
 # Run the main script

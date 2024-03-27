@@ -4,7 +4,7 @@ import streamlit as st
 from streamlit_modal import Modal
 from Helpteksten import *
 
-from reader import read_uploaded_files
+from reader import read_uploaded_files, ENERGY, POWER, TIME
 
 st.set_page_config(page_title="Data Comparison", page_icon="📈")
 
@@ -14,10 +14,6 @@ st.write("""
     This page compares the energy data between two single or sets sets of measurements.
     Upload your (sets of) CSV files adhering to the format specified on the home page to generate the charts.
     """)
-
-# Easy to use/rename variables
-TIME = "Time (s)"
-POWER = "Power (W)"
 
 
 def show_mean_charts(singles, means_df):
@@ -51,6 +47,7 @@ def show_mean_charts(singles, means_df):
             st.markdown(helptekst_mean_chart_modal)
 
     st.markdown("---")
+
 
 # The main script to run but scoped now
 def main():
