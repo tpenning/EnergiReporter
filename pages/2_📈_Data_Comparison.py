@@ -89,11 +89,9 @@ def generate_power_boxplot_charts(string, names, orv_pdfs_values):
 
     # Create the violin plots of the data files
     plt.figure()
-    orv_pdfs_values.append([x for xs in orv_pdfs_values for x in xs])
     plt.violinplot(dataset=orv_pdfs_values, showmedians=True)
     plt.ylabel("Power (W)")
     plt.xlabel("File")
-    names.append("Total of " + string)
     plt.xticks(range(1, len(names) + 1), labels=names)
 
     st.pyplot(plt.gcf())
