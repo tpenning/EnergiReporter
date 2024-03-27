@@ -1,14 +1,13 @@
 import altair as alt
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 from scipy import stats
 import streamlit as st
 from streamlit_modal import Modal
 
 from Helpteksten import *
-from reader import outlier_removal_stat_pdfs, read_uploaded_files, POWER, TIME
-
-from reader import read_uploaded_files
+from reader import read_uploaded_files, POWER, TIME
 
 st.set_page_config(page_title="Data Analysis", page_icon="📊")
 
@@ -106,10 +105,10 @@ def normality_check(names, orv_pdfs_values):
 
 # TODO: Add the average (so total) boxplot,
 #  Or for average power boxplot (like in our blogpost)
-def generate_power_boxplot_charts(names, orv_power_df):
-    plt.violinplot(dataset=[a for a in orv_power_df.T.values], showmedians=True)
+def generate_power_boxplot_charts(names, orv_pdfs_values):
+    # Create the violin plots
+    plt.violinplot(dataset=orv_pdfs_values, showmedians=True)
     plt.xticks(range(1, len(names) + 1), names)
-
     st.pyplot(plt.gcf())
 
     # Create help modal
@@ -157,12 +156,12 @@ def main():
             A common convention is to apply outlier removal on the data which we provide below.
             Set the number of standard deviations to keep included (default 3).
             """)
-        outlier_removal_value = st.number_input("Outlier removal:", value=3, step=1, min_value=1)
-        orv_power_df, orv_pdfs_values = outlier_removal_stat_pdfs(names, stat_pdfs, outlier_removal_value)
+        orv = st.number_input("Outlier removal:", value=3, step=1, min_value=1)
+        orv_pdfs_values = [stat_pdf[(np.abs(stats.zscore(stat_pdf)) < orv)].tolist() for stat_pdf in stat_pdfs]
 
         # Show the data statistics charts
         normality_check(names, orv_pdfs_values)
-        generate_power_boxplot_charts(names, orv_power_df)
+        generate_power_boxplot_charts(names, orv_pdfs_values)
 
 
 # Run the main script

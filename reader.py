@@ -1,6 +1,4 @@
-import numpy as np
 import pandas as pd
-from scipy import stats
 
 # Easy to use/rename variables for the columns used
 POWER = "Power (W)"
@@ -42,17 +40,3 @@ def read_uploaded_files(uploaded_files):
 
     # Return the retrieved data formats and information
     return power_df, mean_df, total_energy, names, stat_pdfs
-
-
-def outlier_removal_stat_pdfs(names, stat_pdfs, orv):
-    # Apply outlier removal on each power DataFrame
-    orv_pdfs = [stat_pdf[(np.abs(stats.zscore(stat_pdf)) < orv)] for stat_pdf in stat_pdfs]
-
-    # Concatenate the orv stat pdfs in an orv power DataFrame
-    orv_power_df = pd.concat(orv_pdfs, axis=1, keys=names)
-
-    # Convert the orv stat pdfs to value lists
-    orv_pdfs_values = [orv_pdf.tolist() for orv_pdf in orv_pdfs]
-
-    # Return the created orv data structures
-    return orv_power_df, orv_pdfs_values
