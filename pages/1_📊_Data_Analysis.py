@@ -40,7 +40,7 @@ def show_mean_charts(single, mean_df, names, total_energies):
     header.subheader(f"Power consumption {'' if single else 'average '}over time:")
 
     # Create help modal
-    mean_chart_modal = Modal("Inserting files", key="mean_chart_modal")
+    mean_chart_modal = Modal("Power mean charts", key="mean_chart_modal")
     open_modal = help_modal.button("❔", key="mean_chart_modal")
     if open_modal:
         with mean_chart_modal.container():
@@ -94,7 +94,7 @@ def show_errorband_charts(single, mean_df, power_df):
         header.subheader(f"Power consumption average over time with error bands:")
 
         # Create help modal
-        errorband_chart_modal = Modal("Inserting files", key="errorband_chart_modal")
+        errorband_chart_modal = Modal("Power errorband charts", key="errorband_chart_modal")
         open_modal = help_modal.button("❔", key="errorband_chart_modal")
         if open_modal:
             with errorband_chart_modal.container():
@@ -186,7 +186,7 @@ def main():
         header.subheader("Data distribution of Power")
 
         # Create help modal
-        boxplot_modal = Modal("Inserting files", key="boxplot_modal")
+        boxplot_modal = Modal("Power data distribution", key="boxplot_modal")
         open_modal = help_modal.button("❔", key="boxplot_modal")
         if open_modal:
             with boxplot_modal.container():

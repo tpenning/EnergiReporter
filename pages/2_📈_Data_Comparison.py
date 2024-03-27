@@ -48,7 +48,7 @@ def show_mean_charts(singles, means_df, name_lists, all_total_energies):
     header.subheader(f"Power consumption {'' if singles[0] and singles[1]  else 'averages '}over time:")
 
     # Create help modal
-    boxplot_mean_chart_modal = Modal("Inserting files", key="boxplot_mean_chart_modal_comparison")
+    boxplot_mean_chart_modal = Modal("Power mean charts", key="boxplot_mean_chart_modal_comparison")
     open_modal = help_modal.button("❔", key="boxplot_mean_chart_modal_comparison")
     if open_modal:
         with boxplot_mean_chart_modal.container():
@@ -129,7 +129,7 @@ def show_errorband_charts(singles, mean_dfs, power_dfs):
         header.subheader(f"Power consumption averages over time with error bands:")
 
         # Create help modal
-        errorband_chart_modal = Modal("Inserting files", key="errorband_chart_modal")
+        errorband_chart_modal = Modal("Power errorband charts", key="errorband_chart_modal")
         open_modal = help_modal.button("❔", key="errorband_chart_modal")
         if open_modal:
             with errorband_chart_modal.container():
@@ -186,7 +186,7 @@ def generate_power_boxplot_charts(string, names, orv_pdfs_values):
     header.subheader("Data distribution of Power: " + string)
 
     # Create help modal
-    boxplot_modal = Modal("Inserting files", key="boxplot_modal_"+string)
+    boxplot_modal = Modal("Power data distribution", key="boxplot_modal_"+string)
     open_modal = help_modal.button("❔", key="boxplot_modal_"+string)
     if open_modal:
         with boxplot_modal.container():
