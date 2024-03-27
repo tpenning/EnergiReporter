@@ -18,6 +18,12 @@ st.markdown("""
     Upload your (sets of) CSV files adhering to the format specified on the home page to generate the charts.
     """)
 
+# Category colors for the compare plots
+category_colors = alt.Color("Set:N", scale=alt.Scale(
+    domain=["Set #1", "Set #2"],
+    range=["#1f77b4", '#ff7f0e']
+))
+
 
 def show_mean_charts(singles, means_df, name_lists, all_total_energies):
     # Retrieve the time column from the index
@@ -45,11 +51,11 @@ def show_mean_charts(singles, means_df, name_lists, all_total_energies):
     # Assign the tabs altair charts (using with notation) to label the axis and indicate set colors
     with tab_line:
         st.altair_chart(alt.Chart(melted_means_tdf).mark_line()
-                        .encode(x=TIME, y=POWER, color="Set:N", tooltip=["Set", POWER]),
+                        .encode(x=TIME, y=POWER, color=category_colors, tooltip=["Set", POWER]),
                         use_container_width=True)
     with tab_area:
         st.altair_chart(alt.Chart(melted_means_tdf).mark_area(opacity=0.7)
-                        .encode(x=TIME, y=POWER, color="Set:N", tooltip=["Set", POWER]),
+                        .encode(x=TIME, y=POWER, color=category_colors, tooltip=["Set", POWER]),
                         use_container_width=True)
 
     # Show DataFrames with the total energy consumption for each file
@@ -60,6 +66,74 @@ def show_mean_charts(singles, means_df, name_lists, all_total_energies):
                                              "TOTAL ENERGY": [f"{round(te, 2)}J" for te in all_total_energies[i]]})
         energy_usage_dfs[i].dataframe(energy_usage_df, hide_index=True)
     st.markdown("---")
+
+
+def show_errorband_charts(singles, mean_dfs, power_dfs):
+    if not any(singles):
+        # Create the list to add the chart information in
+        mean_tdfs = []
+        std_dfs = []
+        conf_dfs = []
+
+        # Get the mean and errorband DataFrames for each set
+        for i, mean_df in enumerate(mean_dfs):
+            # Get the current power df as well and the set indication to add everywhere
+            power_df = power_dfs[i]
+            set_indicator = f"Set #{i+1}"
+
+            # Get the mean time restored DataFrame, with its set indication added and add it to the list
+            mean_tdf = mean_df.reset_index()
+            mean_tdf["Set"] = set_indicator
+            mean_tdfs.append(mean_tdf)
+
+            # Calculate the mean, std, and conf data across the DataFrames, all time indexed
+            mean_pdf = mean_df[POWER]
+            std_data = power_df.std(axis=1)
+            conf_data = std_data * 2
+
+            # Combine the data into one time, mean, std/conf DataFrame
+            std_df = pd.concat([mean_pdf, std_data], axis=1, keys=["MEAN", "STD"]).reset_index()
+            std_df["Set"] = set_indicator
+            std_dfs.append(std_df)
+            conf_df = pd.concat([mean_pdf, conf_data], axis=1, keys=["MEAN", "CONF"]).reset_index()
+            conf_df["Set"] = set_indicator
+            conf_dfs.append(conf_df)
+
+        # Concatenate the chart information to get all the entries into one list
+        means_tdf = pd.concat(mean_tdfs, ignore_index=True)
+        stds_df = pd.concat(std_dfs, ignore_index=True)
+        confs_df = pd.concat(conf_dfs, ignore_index=True)
+
+        # Set the columns for the subheader and information icon
+        header, help_modal = st.columns([10, 1])
+
+        # Show the header of this chart and information
+        header.subheader(f"Power consumption averages over time with error bands:")
+
+        # Create help modal
+        errorband_chart_modal = Modal("Inserting files", key="errorband_chart_modal")
+        open_modal = help_modal.button("❔", key="errorband_chart_modal")
+        if open_modal:
+            with errorband_chart_modal.container():
+                st.markdown(help_text_errorband_chart_modal)
+
+        # Create a tab element with the different errorband metrics
+        tab_std, tab_conf = st.tabs(["STD Chart", "Conf Chart"])
+
+        # Add the tab charts with the error bands
+        tab_std.altair_chart(alt.Chart(means_tdf)
+                             .mark_line().interactive()
+                             .encode(x=TIME, y=POWER, color=category_colors, tooltip=["Set", POWER]) +
+                             alt.Chart(stds_df).mark_errorband(extent="ci")
+                             .encode(x=TIME, y=alt.Y("MEAN", title=POWER), yError="STD", color="Set:N"),
+                             use_container_width=True)
+        tab_conf.altair_chart(alt.Chart(means_tdf)
+                              .mark_line().interactive()
+                              .encode(x=TIME, y=POWER, color=category_colors, tooltip=["Set", POWER]) +
+                              alt.Chart(confs_df).mark_errorband(extent="ci")
+                              .encode(x=TIME, y=alt.Y("MEAN", title=POWER), yError="CONF", color="Set:N"),
+                              use_container_width=True)
+        st.markdown("---")
 
 
 def normality_check(names, orv_pdfs_values):
@@ -178,12 +252,15 @@ def main():
         # Concatenate the DataFrames power columns indicated by which set they belong to
         means_df = pd.concat([mean_df[POWER] for mean_df in mean_dfs], axis=1, keys=["Set #1", "Set #2"])
 
-        # Show the data analysis charts (single indicated changes handled internally to easily keep the charts order)
+        # Show the data analysis charts
         show_mean_charts(singles, means_df, name_lists, all_total_energies)
+        show_errorband_charts(singles, mean_dfs, power_dfs)
 
+        # Show the power statistic charts
         generate_power_boxplot_charts("First dataset", name_lists[0], stat_pdfs[0])
         generate_power_boxplot_charts("Second dataset", name_lists[1], stat_pdfs[1])
 
+        # Show the statistical analysis comparison information
         compare_statistical_analysis(stat_pdfs[0], stat_pdfs[1])
 
 

@@ -74,7 +74,7 @@ def show_errorband_charts(single, mean_df, power_df):
         header, help_modal = st.columns([10, 1])
 
         # Show the header of this chart and information
-        header.subheader(f"Power consumption {'average ' if single else ''}over time with error bands:")
+        header.subheader(f"Power consumption average over time with error bands:")
 
         # Create help modal
         errorband_chart_modal = Modal("Inserting files", key="errorband_chart_modal")

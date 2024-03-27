@@ -52,9 +52,9 @@ def extract_df(df):
         power = df[key].tolist()
 
         # Calculate the time and total energy
-        for index, row in df.iloc[2:].iterrows():
+        for i, row in df.iloc[2:].iterrows():
             # Update the total time and add the 0.1s rounded time to the list
-            delta = (row["Time"] - df.at[index - 1, "Time"]) / 1000
+            delta = (row["Time"] - df.at[i - 1, "Time"]) / 1000
             total_time += delta
             time.append(round(total_time, 1))
 
@@ -65,14 +65,14 @@ def extract_df(df):
         key = "CPU_ENERGY (J)" if "CPU_ENERGY (J)" in df.columns else "PACKAGE_ENERGY (J)"
 
         # Calculate the time, energy, and power
-        for index, row in df.iloc[2:].iterrows():
+        for i, row in df.iloc[2:].iterrows():
             # Update the total time and add the 0.1s rounded time to the list
-            delta = (row["Time"] - df.at[index - 1, "Time"]) / 1000
+            delta = (row["Time"] - df.at[i - 1, "Time"]) / 1000
             total_time += delta
             time.append(round(total_time, 1))
 
             # Calculate the energy used in the delta from the difference and add it to the total
-            energy = row[key] - df.at[index - 1, key]
+            energy = row[key] - df.at[i - 1, key]
             total_energy += energy
 
             # Calculate the power consumed used over the last delta and add it to the list
