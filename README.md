@@ -3,6 +3,7 @@ EnergiReporter is an open-source app built for analyzing energy data files,
 specifically those of [EnergiBridge](https://github.com/tdurieux/energibridge).
 EnergiReporter offers data analysis reports and data comparison reports for single or multiple 
 files. Select a data visualization option from the sidebar to start generating your report!
+EnergiReporter is publicly available via Streamlit [here](https://energi-reporter.streamlit.app/).
 
 Currently, EnergiReporter was designed with the energy data file format of EnergiBridge in mind. 
 The uploaded file must be a CSV file with either one of the following columns reporting the 
