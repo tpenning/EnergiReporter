@@ -65,7 +65,7 @@ def extract_df(df):
     if "CPU_POWER (Watts)" in df.columns or "SYSTEM_POWER (Watts)" in df.columns:
         # Get the column key and the power immediately
         key = "CPU_POWER (Watts)" if "CPU_POWER (Watts)" in df.columns else "SYSTEM_POWER (Watts)"
-        power = df[key].tolist()
+        power = df[key].tolist()[2:]
 
         # Calculate the time and total energy
         for i, row in df.iloc[2:].iterrows():
@@ -96,8 +96,54 @@ def extract_df(df):
     else:
         raise ValueError("None of the specified energy data columns are present in the CSV file")
 
-    # Create a DataFrame for the time and power
-    power_tdf = pd.DataFrame(data={TIME: time, POWER: power})
+    # Create a DataFrame for the time and power without duplicates
+    power_tdf = remove_time_duplicates(time, power)
 
     # Return the time-power DataFrame and the total energy consumption
     return power_tdf, total_energy
+
+
+def remove_time_duplicates(time, power):
+    """
+    Removes the duplicate time value and the power values of the related indices
+
+    :param time: The list of time values
+    :param power: The list of power values
+    :return: A time duplicate free time-power DataFrame
+    """
+    # The time and power lists for the time duplicate free values
+    clean_time = []
+    clean_power = []
+
+    # Loop over the time values
+    skip_index = -1
+    time_len = len(time)
+    for i, t in enumerate(time):
+        # Continue if we are below the skip index
+        if i < skip_index:
+            continue
+
+        # If the next time value is different add the values to the clean list
+        if i + 1 == time_len or t != time[i + 1]:
+            clean_time.append(t)
+            clean_power.append(power[i])
+        # Else, the next time value is the same return an average row instead
+        else:
+            # Create the same time power sum for all values with the same time
+            p_sum = power[i]
+            duplicate_count = 1
+            for j in range(i + 1, time_len):
+                # If the time value is equal update the p sum, otherwise escape the loop
+                if time[j] == t:
+                    p_sum += power[j]
+                    duplicate_count += 1
+                else:
+                    break
+
+            # Add the time value and average power over all equal times to the clean lists, and update the skip index
+            clean_time.append(t)
+            clean_power.append(p_sum / duplicate_count)
+            skip_index = i + duplicate_count
+
+    # Return a time duplicate free time-power DataFrame
+    return pd.DataFrame(data={TIME: clean_time, POWER: clean_power})
